@@ -1,17 +1,13 @@
 import type { AuthResponse, ChatMessage, Chunk, Conversation, ConversationDetail, Document, User } from "./types";
 
 const getBackendUrl = () => {
-  // Nếu đang ở client (browser), dùng NEXT_PUBLIC_BACKEND_URL (thường là localhost)
-  if (typeof window !== "undefined") {
-    const url = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!url) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL chưa được cấu hình");
-    }
-    return url.replace(/\/+$/, "");
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!url) {
+    // Fallback cho phát triển local nếu quên set env
+    if (typeof window === "undefined") return "http://localhost:8000";
+    throw new Error("NEXT_PUBLIC_BACKEND_URL chưa được cấu hình");
   }
-
-  // Nếu đang ở server (trong Docker), dùng tên service của container backend
-  return "http://backend:8000";
+  return url.replace(/\/+$/, "");
 };
 
 const getAuthHeaders = (): Record<string, string> => {
@@ -100,7 +96,7 @@ export async function sendChatMessage(
     body: JSON.stringify({
       question,
       document_ids: options?.documentIds,
-      language: options?.language ?? "vi",
+      language: options?.language ?? "en",
       conversation_id: options?.conversationId
     })
   });
